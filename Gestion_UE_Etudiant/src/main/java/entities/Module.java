@@ -1,5 +1,7 @@
 package entities;
+import javax.xml.bind.annotation.XmlRootElement; // <-- AJOUTER CETTE LIGNE
 
+@XmlRootElement(name = "module")
 public class Module {
     private String matricule;
     private String nom;

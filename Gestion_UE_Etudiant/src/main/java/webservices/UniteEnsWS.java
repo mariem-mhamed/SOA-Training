@@ -1,26 +1,23 @@
 package webservices;
-
+import metiers.UniteEnseignementBusiness;
 import entities.UniteEnseignement;
 import filtres.Secured;
-import metiers.UniteEnseignementBusiness;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-@Path("/ue")
+@Path("/ue-secured")
 public class UniteEnsWS {
     static UniteEnseignementBusiness helper=
             new UniteEnseignementBusiness();
     @Secured
     @Path("/list")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON) // <--- C'EST LUI QUI TUE TOUT !
     public Response getAll(){
-        return Response
-                .status(200)
-                .entity(helper.getListeUE())
-                .build();
+        return Response.status(200).entity(helper.getListeUE()).build();
     }
+
     @Path("/add")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
