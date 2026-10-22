@@ -1,57 +1,107 @@
+
 package graphql;
 
-// Import the business logic class responsible for managing "UniteEnseignement" data
+import business.ModuleBusiness;
 import business.UniteEnseignementBusiness;
-
-// Import the GraphQL library class used to define the root of GraphQL mutations
 import com.coxautodev.graphql.tools.GraphQLRootResolver;
-
-// Import the entity class representing a Teaching Unit (Unité d’Enseignement)
+import entities.Module;
 import entities.UniteEnseignement;
 
-/**
- * This class defines all GraphQL mutations related to the "UniteEnseignement" entity.
- * A mutation in GraphQL is used to perform write operations (create, update, delete)
- * as opposed to queries, which are for read operations.
- */
 public class MutationResolver implements GraphQLRootResolver {
 
-    // Attribute used to access the business logic (service layer)
-    public UniteEnseignementBusiness helper;
+    private final UniteEnseignementBusiness helper;
+    private final ModuleBusiness moduleBusiness;
 
-    /**
-     * Constructor of the resolver.
-     * It initializes the business helper that manages the teaching units.
-     */
     public MutationResolver() {
         helper = new UniteEnseignementBusiness();
+        moduleBusiness = new ModuleBusiness();
     }
 
-    /**
-     * GraphQL Mutation: addUniteEnseignement
-     *
-     * This method allows clients to add a new "Unité d’Enseignement" to the system.
-     *
-     * When a GraphQL mutation like the following is executed:
-     *
-     * mutation {
-     *     addUniteEnseignement(
-     *         code: 101,
-     *         domaine: "Informatique",
-     *         responsable: "Dr. Smith",
-     *         credits: 4,
-     *         semestre: 2
-     *     )
-     * }
-     *
-     * GraphQL calls this Java method to create and save a new teaching unit.
-     */
-    public boolean addUniteEnseignement(int code, String domaine, String responsable, int credits, int semestre) {
-        // Create a new UniteEnseignement object with the provided parameters
-        UniteEnseignement ue = new UniteEnseignement(code, domaine, responsable, credits, semestre);
+    // Ajout d'une UE (code existant)
+    public boolean addUniteEnseignement(
+            int code,
+            String domaine,
+            String responsable,
+            int credits,
+            int semestre) {
 
-        // Call the business logic method to add the new unit
-        // The helper handles the actual persistence or logic of adding the entity
+        UniteEnseignement ue = new UniteEnseignement(
+                code, domaine, responsable, credits, semestre
+        );
+
         return helper.addUniteEnseignement(ue);
+    }
+
+    // 2. Ajouter un module
+    public boolean addModule(
+            String matricule,
+            String nom,
+            int coefficient,
+            int volumeHoraire,
+            int codeUE,
+            Module.TypeModule type) {
+
+        UniteEnseignement ue = helper.getUEByCode(codeUE);
+
+        if (ue == null) {
+            return false;
+        }
+
+        Module module = new Module(
+                matricule,
+                nom,
+                coefficient,
+                volumeHoraire,
+                type,
+                ue
+        );
+
+        return moduleBusiness.addModule(module);
+    }
+
+    // 3. Modifier un module
+    public Module updateModule(
+            String matricule,
+            String nom,
+            int coefficient,
+            int volumeHoraire,
+            int codeUE,
+            Module.TypeModule type) {
+
+        Module existingModule =
+                moduleBusiness.getModuleByMatricule(matricule);
+
+        UniteEnseignement ue = helper.getUEByCode(codeUE);
+
+        if (existingModule == null || ue == null) {
+            return null;
+        }
+
+        Module updatedModule = new Module(
+                matricule,
+                nom,
+                coefficient,
+                volumeHoraire,
+                type,
+                ue
+        );
+
+        boolean updated = moduleBusiness.updateModule(
+                matricule, updatedModule
+        );
+
+        return updated ? updatedModule : null;
+    }
+
+    // 6. Supprimer un module
+    public String deleteModule(String matricule) {
+
+        boolean deleted = moduleBusiness.deleteModule(matricule);
+
+        if (deleted) {
+            return "Module supprime avec succes";
+        }
+
+        return "Module introuvable";
     }
 }
