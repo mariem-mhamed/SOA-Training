@@ -21,9 +21,11 @@ public class UniteEnsWS {
                 .entity(helper.getListeUE())
                 .build();
     }
+
+    @Secured
     @Path("/add")
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.TEXT_PLAIN)
     public Response addUE(UniteEnseignement ue){
         if(helper.addUniteEnseignement(ue)==true){

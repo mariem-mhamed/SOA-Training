@@ -23,7 +23,7 @@ import java.util.Date;
  */
 
 
-@Path("/authentification")
+@Path("authentication")
 public class AuthenticationEndPoint {
 
     // ======================================
